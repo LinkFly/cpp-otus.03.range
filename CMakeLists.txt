@@ -38,7 +38,7 @@ add_test(ip_filter_tests tests)
 ###
 
 ### Packaging ###
-install(TARGETS ip_filter RUNTIME DESTINATION bin)
+install(TARGETS ip_filter ip_filter.tsv ip_filter.tst RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
