@@ -1,0 +1,39 @@
+cmake_minimum_required(VERSION 3.14)
+project(ip_filter VERSION 0.0.1)
+
+set(SOURCES
+	ip_filter.cpp
+	)
+set(HEADERS_LIB
+	ip_filter_lib.h
+	)
+set(SOURCES_LIB
+	ip_filter_lib.cpp
+	)
+
+add_executable(ip_filter ${SOURCES} ${HEADERS_LIB})
+add_library(ip_filter_lib STATIC ${SOURCES_LIB} ${HEADERS_LIB})
+target_link_libraries(ip_filter ip_filter_lib)
+set_target_properties(ip_filter ip_filter_lib PROPERTIES
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED ON
+)
+
+### tests ###
+add_executable(tests tests.cpp ${HEADERS_LIB})
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+set_target_properties(tests PROPERTIES
+	COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+	INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS}
+	LINK_DIRECTORIES ${Boost_LIBRARY_DIRS}
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED ON
+)
+target_link_libraries(tests
+  ${Boost_LIBRARIES}
+  ip_filter_lib
+  )
+###
+
+enable_testing()
+add_test(ip_filter_tests tests)
