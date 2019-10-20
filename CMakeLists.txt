@@ -38,9 +38,9 @@ add_test(ip_filter_tests tests)
 ###
 
 ### Packaging ###
-#install(DIRECTORY ${PROJECT_SOURCE_DIR}/fixtures DESTINATION bin)
 install(TARGETS ip_filter RUNTIME DESTINATION bin)
-install(FILES ip_filter.tsv ip_filter.tst DESTINATION bin)
+install(TARGETS tests RUNTIME DESTINATION lib/ip_filter/tests/build/bin)
+install(FILES ip_filter.tsv ip_filter.tst DESTINATION lib/ip_filter/tests)
 
 set(CPACK_GENERATOR DEB)
 

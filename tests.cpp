@@ -2,7 +2,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <fstream>
-//#include <filesystem>
+#include <filesystem>
 
 #include "ip_filter_lib.h"
 
@@ -10,12 +10,11 @@
 bool test() {return true;}
 
 bool test_of_true_filtering() {
-	/*std::filesystem::path cwd = std::filesystem::current_path();*/
-	//auto data_file = cwd / ".." / ".." 
+	std::filesystem::path cwd = std::filesystem::current_path();
+	auto test_files_dir = cwd / ".." / "..";
 
-	// TODO!!! Change absolute path
-	auto file_in = "C:\\Users\\Asus\\Dropbox\\courses\\cpp-otus\\03\\02.ip_filter\\ip_filter.tsv";
-	auto file_test = "C:\\Users\\Asus\\Dropbox\\courses\\cpp-otus\\03\\02.ip_filter\\ip_filter.tst";
+	auto file_in = (test_files_dir / "ip_filter.tsv").string();
+	auto file_test = (test_files_dir / "ip_filter.tst").string();
 
 	std::ifstream fin(file_in, std::ios::in);
 	std::ostringstream outres;
