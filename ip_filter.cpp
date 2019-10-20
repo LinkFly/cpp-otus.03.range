@@ -2,38 +2,10 @@
 #include "ip_filter_lib.h"
 
 int main(int argc, char const *argv[])
-{	
-	/*std::cout << "--------- ============ -----------" << std::endl;
-	exit(0);*/
-	/*processInput();
-	exit(0);*/
-
+{
     try
     {
-		PoolCollection<vecstr> ip_pools_col;
-
-		read_lines(std::cin, [&ip_pool=ip_pools_col.base_pool](std::string line) {
-			add_line_to_pool(ip_pool, line);
-		});
-		
-        //  reverse lexicographically sort
-		ip_pools_col.base_sort();
-
-		// Prepare classified pools
-		ip_pools_col.classify();
-
-		//// Output
-		/*std::ostringstream outres;*/
-		auto ip_pools = ip_pools_col.get();
-		output_pools<vecstr>(std::cout, ip_pools, [](vecstr ip_desc){
-			return unpack_ip(ip_desc);
-			});
-		
-		/*std::cout << outres.str() << std::endl;
-		auto vec = read_file("C:\\Users\\Asus\\Dropbox\\courses\\cpp-otus\\03\\02.ip_filter\\ip_filter.tst");
-		auto bigstr = lines_str(vec);
-		std::cout << true << " " << (bigstr == outres.str());
-		*/
+		run();
 
        /* for(std::vector<std::vector<std::string> >::const_iterator ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip)
         {

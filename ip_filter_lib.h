@@ -9,7 +9,14 @@
 #include <functional>
 #include <fstream>
 #include <sstream>
-//#include <map>
+
+using vecstr = std::vector<std::string>;
+// TODO analyze it (maybe deprecated)
+using vec_vecstr = std::vector<vecstr>;
+
+using vecint = std::vector<int>;
+using vec_vecint = std::vector<vecint>;
+using func_str = std::function<void(std::string)>;
 
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
@@ -31,12 +38,9 @@ bool check_includes_46(const std::vector<int>& ip_parts);
 
 void read_lines(std::istream& stream, func_str fn_line_handler);
 
-template<class T>
-void process_vector(std::vector<T> vec, std::function<void(T)> fn);
+std::string unpack_ip(vecint& ip_parts);
 
-std::string unpack_ip(vecstr& ip_parts);
-
-void add_line_to_pool(vec_vecstr& ip_pool, std::string line);
+void add_line_to_pool(vec_vecint& ip_pool, std::string line);
 
 vecstr read_file(std::string filename);
 
@@ -63,7 +67,7 @@ struct PoolCollection {
 	void classify();
 	std::vector<ip_pool<T>> get();
 private:
-	void pool_sort(ip_pool<vecstr>& ip_pool);
+	void pool_sort(ip_pool<T>& ip_pool);
 };
 
-void run(std::istream& in, std::ostream& out);
+void run(std::istream& in = std::cin, std::ostream& out = std::cout);

@@ -13,7 +13,7 @@ bool test_of_true_filtering() {
 	/*std::filesystem::path cwd = std::filesystem::current_path();*/
 	//auto data_file = cwd / ".." / ".." 
 
-	// TODO!!! Избавиться от абсолютного пути
+	// TODO!!! Change absolute path
 	auto file_in = "C:\\Users\\Asus\\Dropbox\\courses\\cpp-otus\\03\\02.ip_filter\\ip_filter.tsv";
 	auto file_test = "C:\\Users\\Asus\\Dropbox\\courses\\cpp-otus\\03\\02.ip_filter\\ip_filter.tst";
 
