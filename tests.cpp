@@ -2,10 +2,10 @@
 
 #include <boost/test/unit_test.hpp>
 #include <fstream>
-#include <filesystem>
+//#include <filesystem>
+#include <boost/filesystem.hpp>
 
 #include "ip_filter_lib.h"
-
 
 bool test() {return true;}
 
@@ -27,7 +27,8 @@ vecstr read_file(std::string filename) {
 }
 
 bool test_of_true_filtering() {
-	std::filesystem::path cwd = std::filesystem::current_path();
+	/*std::filesystem::path cwd = std::filesystem::current_path();*/
+	boost::filesystem::path cwd = boost::filesystem::current_path();
 	auto test_files_dir = cwd / ".." / "..";
 
 	auto file_in = (test_files_dir / "ip_filter.tsv").string();

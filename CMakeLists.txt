@@ -21,7 +21,7 @@ set_target_properties(ip_filter ip_filter_lib PROPERTIES
 
 ### tests ###
 add_executable(tests tests.cpp ${HEADERS_LIB})
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework filesystem REQUIRED)
 set_target_properties(tests PROPERTIES
 	COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
 	INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS}
