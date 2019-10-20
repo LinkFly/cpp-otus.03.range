@@ -10,13 +10,18 @@
 #include <fstream>
 #include <sstream>
 
+//// Types
 using vecstr = std::vector<std::string>;
-// TODO analyze it (maybe deprecated)
-using vec_vecstr = std::vector<vecstr>;
-
 using vecint = std::vector<int>;
 using vec_vecint = std::vector<vecint>;
 using func_str = std::function<void(std::string)>;
+
+template<class T>
+using ip_pool = std::vector<T>;
+
+//////////////////////////////////////
+//// Utils
+void read_lines(std::istream& stream, func_str fn_line_handler);
 
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
@@ -26,46 +31,21 @@ using func_str = std::function<void(std::string)>;
 // ("11.22", '.') -> ["11", "22"]
 std::vector<std::string> split(const std::string& str, char d);
 
-using vecstr = std::vector<std::string>;
-using vec_vecstr = std::vector<vecstr>;
-using func_str = std::function<void(std::string)>;
-
-bool check_started_1(const std::vector<int>& ip_parts);
-
-bool check_started_46_70(const std::vector<int>& ip_parts);
-
-bool check_includes_46(const std::vector<int>& ip_parts);
-
-void read_lines(std::istream& stream, func_str fn_line_handler);
-
-std::string unpack_ip(vecint& ip_parts);
-
-void add_line_to_pool(vec_vecint& ip_pool, std::string line);
-
-vecstr read_file(std::string filename);
-
-std::string lines_str(vecstr vec);
-
-template<class T>
-using ip_pool = std::vector<T>;
-
-template<class T>
-void output_pools(std::ostream& out, std::vector<ip_pool<T>> pools, std::function<std::string(T)> fn_prepare_ip) {
-	for (auto cur_pool : pools) {
-		for (T ip_desc : cur_pool) {
-			std::string ip = fn_prepare_ip(ip_desc);
-			out << ip << "\n";
-		}
-
-	}
-}
+//// Predicats
+bool check_started_1(const vecint& ip_parts);
+bool check_started_46_70(const vecint& ip_parts);
+bool check_includes_46(const vecint& ip_parts);
 
 template<class T = vecstr>
 struct PoolCollection {
 	ip_pool<T> base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46;
+	static void add_from_line(ip_pool<T>& ip_pool, std::string& line);
 	void base_sort();
 	void classify();
-	std::vector<ip_pool<T>> get();
+	/*std::vector<ip_pool<T>> get();*/
+	std::string unpack_ip(T& ip_parts);
+	/*void output_pools(std::ostream& out, std::function<std::string(T)> fn_prepare_ip);*/
+	void output_pools(std::ostream& out);
 private:
 	void pool_sort(ip_pool<T>& ip_pool);
 };

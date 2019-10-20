@@ -9,6 +9,23 @@
 
 bool test() {return true;}
 
+std::string lines_str(vecstr vec) {
+	std::ostringstream sout;
+	for (auto s : vec) {
+		sout << s << "\n";
+	}
+	return sout.str();
+}
+
+vecstr read_file(std::string filename) {
+	vecstr vec;
+	std::ifstream fin(filename, std::ios::in);
+	read_lines(fin, [&vec](std::string line) {
+		vec.push_back(line);
+		});
+	return vec;
+}
+
 bool test_of_true_filtering() {
 	std::filesystem::path cwd = std::filesystem::current_path();
 	auto test_files_dir = cwd / ".." / "..";

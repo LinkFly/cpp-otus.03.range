@@ -11,12 +11,6 @@
 
 #include "ip_filter_lib.h"
 
-// ("",  '.') -> [""]
-// ("11", '.') -> ["11"]
-// ("..", '.') -> ["", "", ""]
-// ("11.", '.') -> ["11", ""]
-// (".11", '.') -> ["", "11"]
-// ("11.22", '.') -> ["11", "22"]
 std::vector<std::string> split(const std::string& str, char d)
 {
 	std::vector<std::string> r;
@@ -36,15 +30,22 @@ std::vector<std::string> split(const std::string& str, char d)
 	return r;
 }
 
-bool check_started_1(const std::vector<int>& ip_parts) {
+void read_lines(std::istream& stream, func_str fn_line_handler) {
+	for (std::string line; std::getline(stream, line);)
+		fn_line_handler(line);
+}
+
+////////////////////////////////////////////////////
+
+bool check_started_1(const vecint& ip_parts) {
 	return ip_parts[0] == 1;
 }
 
-bool check_started_46_70(const std::vector<int>& ip_parts) {
+bool check_started_46_70(const vecint& ip_parts) {
 	return ip_parts[0] == 46 && ip_parts[1] == 70;
 }
 
-bool check_includes_46(const std::vector<int>& ip_parts) {
+bool check_includes_46(const vecint& ip_parts) {
 	for (auto ip_part : ip_parts) {
 		if (ip_part == 46)
 			return true;
@@ -52,23 +53,22 @@ bool check_includes_46(const std::vector<int>& ip_parts) {
 	return false;
 }
 
-void read_lines(std::istream& stream, func_str fn_line_handler) {
-	for (std::string line; std::getline(stream, line);)
-		fn_line_handler(line);
-}
+//template<class T>
+//void output_pools(std::ostream& out, std::vector<ip_pool<T>> pools, std::function<std::string(T)> fn_prepare_ip);
 
-std::string unpack_ip(vecint& ip_parts) {
-	std::ostringstream ostr;
-	for (auto it = ip_parts.cbegin(); it != ip_parts.cend(); it++) {
-		if (it != ip_parts.cbegin()) {
-			ostr << ".";
-		}
-		ostr << *it;
-	}
-	return ostr.str();
-}
+//std::string unpack_ip(vecint& ip_parts) {
+//	std::ostringstream ostr;
+//	for (auto it = ip_parts.cbegin(); it != ip_parts.cend(); it++) {
+//		if (it != ip_parts.cbegin()) {
+//			ostr << ".";
+//		}
+//		ostr << *it;
+//	}
+//	return ostr.str();
+//}
 
-void add_line_to_pool(vec_vecint& ip_pool, std::string line) {
+template<typename T>
+void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
 	vecstr v = split(line, '\t');
 	vecstr snums = split(v.at(0), '.');
 	vecint ip_parts;
@@ -76,33 +76,23 @@ void add_line_to_pool(vec_vecint& ip_pool, std::string line) {
 	ip_pool.push_back(ip_parts);
 }
 
-vecstr read_file(std::string filename) {
-	vecstr vec;
-	std::ifstream fin(filename, std::ios::in);
-	read_lines(fin, [&vec](std::string line) {
-		vec.push_back(line);
-		});
-	return vec;
-}
-
-std::string lines_str(vecstr vec) {
-	std::ostringstream sout;
-	for (auto s : vec) {
-		sout << s << "\n";
-	}
-	return sout.str();
-}
-
-template<class T>
-using ip_pool = std::vector<T>;
-
-//void output_pools(std::ostringstream out,
-template<class T>
-void output_pools(std::ostream& out, std::vector<ip_pool<T>> pools, std::function<std::string(T)> fn_prepare_ip);
-
 template<class T>
 void PoolCollection<T>::base_sort() {
 	pool_sort(base_pool);
+}
+
+template<class T>
+void PoolCollection<T>::pool_sort(ip_pool<T>& ip_pool) {
+	std::sort(ip_pool.begin(), ip_pool.end(), [](const T& vs_left, const T& vs_right) -> bool {
+		for (int i = 0; i < 4; i++) {
+			int num_left = vs_left[i];
+			int num_right = vs_right[i];
+			if (num_left != num_right) {
+				return num_left > num_right;
+			}
+		}
+		return false;
+		});
 }
 
 template<class T>
@@ -117,30 +107,41 @@ void PoolCollection<T>::classify() {
 	}
 }
 
-template<class T>
-std::vector<ip_pool<T>> PoolCollection<T>::get() {
-	return { base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46 };
+//template<class T>
+//std::vector<ip_pool<T>> PoolCollection<T>::get() {
+//	return { base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46 };
+//}
+
+template<typename T>
+std::string PoolCollection<T>::unpack_ip(T& ip_parts) {
+	std::ostringstream ostr;
+	for (auto it = ip_parts.cbegin(); it != ip_parts.cend(); it++) {
+		if (it != ip_parts.cbegin()) {
+			ostr << ".";
+		}
+		ostr << *it;
+	}
+	return ostr.str();
 }
 
-template<class T>
-void PoolCollection<T>::pool_sort(ip_pool<T>& ip_pool) {
-	std::sort(ip_pool.begin(), ip_pool.end(), [](const vecint& vs_left, const vecint& vs_right) -> bool {
-		for (int i = 0; i < 4; i++) {
-			int num_left = vs_left[i];
-			int num_right = vs_right[i];
-			if (num_left != num_right) {
-				return num_left > num_right;
-			}
+template<typename T>
+void PoolCollection<T>::output_pools(std::ostream& out) {
+	std::vector<ip_pool<T>> pools{ base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46 };
+	for (auto cur_pool : pools) {
+		for (T ip_desc : cur_pool) {
+			/*std::string ip = fn_prepare_ip(ip_desc);*/
+			std::string ip = unpack_ip(ip_desc);
+			out << ip << "\n";
 		}
-		return false;
-		});
+	}
 }
 
 void run(std::istream &in, std::ostream &out) {
-	PoolCollection<vecint> ip_pools_col;
+	using PoolCol = PoolCollection<vecint>;
+	PoolCol ip_pools_col;
 
-	read_lines(in, [&ip_pool = ip_pools_col.base_pool](std::string line) {
-		add_line_to_pool(ip_pool, line);
+	read_lines(in, [&ip_pools_col](std::string line) {
+		PoolCol::add_from_line(ip_pools_col.base_pool, line);
 	});
 
 	//  reverse lexicographically sort
@@ -150,8 +151,7 @@ void run(std::istream &in, std::ostream &out) {
 	ip_pools_col.classify();
 
 	//// Output
-	auto ip_pools = ip_pools_col.get();
-	output_pools<vecint>(out, ip_pools, [](vecint ip_desc) {
-		return unpack_ip(ip_desc);
-		});
+	ip_pools_col.output_pools(out);
+	/*auto ip_pools = ip_pools_col.get();
+	output_pools<vecint>(out, ip_pools, unpack_ip);*/
 }
