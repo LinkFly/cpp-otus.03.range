@@ -29,15 +29,22 @@ vecstr read_file(std::string filename) {
 bool test_of_true_filtering() {
 	/*std::filesystem::path cwd = std::filesystem::current_path();*/
 	boost::filesystem::path cwd = boost::filesystem::current_path();
-	auto test_files_dir = cwd / ".." / "..";
+	auto test_files_dir = cwd / "..";
 
 	auto file_in = (test_files_dir / "ip_filter.tsv").string();
+	if (!boost::filesystem::exists(file_in)) {
+		std::cerr << "not found file_in: " << file_in << std::endl;
+		exit(2);
+	}
 	auto file_test = (test_files_dir / "ip_filter.tst").string();
+	if (!boost::filesystem::exists(file_test)) {
+		std::cerr << "not found file_test: " << file_test << std::endl;
+		exit(2);
+	}
 
 	std::ifstream fin(file_in, std::ios::in);
 	std::ostringstream outres;
 	run(fin, outres);
-	
 	auto vec = read_file(file_test);
 	auto bigstr = lines_str(vec);
 	return bigstr == outres.str();

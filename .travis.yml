@@ -8,9 +8,11 @@ addons:
 script:
 - pwd
 - ls
-- cmake .
+- mkdir build
+- cd build
+- cmake ..
 - cmake --build .
-- cmake --build . --target test
+- cmake --build . --target tests
 - cmake --build . --target package
 deploy:
   provider: script

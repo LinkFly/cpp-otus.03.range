@@ -1,5 +1,6 @@
 #pragma once
 
+// TODO! Remove not used includes
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
@@ -38,14 +39,15 @@ bool check_includes_46(const vecint& ip_parts);
 
 template<class T = vecstr>
 struct PoolCollection {
+	using ip_pool_ptr = ip_pool<T>*;
 	ip_pool<T> base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46;
 	static void add_from_line(ip_pool<T>& ip_pool, std::string& line);
 	void base_sort();
 	void classify();
-	/*std::vector<ip_pool<T>> get();*/
-	std::string unpack_ip(T& ip_parts);
-	/*void output_pools(std::ostream& out, std::function<std::string(T)> fn_prepare_ip);*/
-	void output_pools(std::ostream& out);
+	std::vector<ip_pool_ptr> get();
+	std::string unpack_ip(const T& ip_parts);
+	void PoolCollection<T>::output_pools(std::ostream& out, const std::vector<ip_pool_ptr>& pools);
+	void filtering_and_output_pools(std::ostream& out);
 private:
 	void pool_sort(ip_pool<T>& ip_pool);
 };

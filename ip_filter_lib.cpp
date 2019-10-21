@@ -5,11 +5,18 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 #include <functional>
 #include <fstream>
 #include <sstream>
+//for debug
+//#include <typeinfo>
 
 #include "ip_filter_lib.h"
+#include "build/config.h"
+
+using std::cout;
+using std::endl;
 
 std::vector<std::string> split(const std::string& str, char d)
 {
@@ -107,13 +114,13 @@ void PoolCollection<T>::classify() {
 	}
 }
 
-//template<class T>
-//std::vector<ip_pool<T>> PoolCollection<T>::get() {
-//	return { base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46 };
-//}
+template<class T>
+std::vector<typename PoolCollection<T>::ip_pool_ptr> PoolCollection<T>::get() {
+	return { &base_pool, &ip_pool_started_1, &ip_pool_started_46_70, &ip_pool_includes_46 };
+}
 
 template<typename T>
-std::string PoolCollection<T>::unpack_ip(T& ip_parts) {
+std::string PoolCollection<T>::unpack_ip(const T& ip_parts) {
 	std::ostringstream ostr;
 	for (auto it = ip_parts.cbegin(); it != ip_parts.cend(); it++) {
 		if (it != ip_parts.cbegin()) {
@@ -125,16 +132,62 @@ std::string PoolCollection<T>::unpack_ip(T& ip_parts) {
 }
 
 template<typename T>
-void PoolCollection<T>::output_pools(std::ostream& out) {
-	std::vector<ip_pool<T>> pools{ base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46 };
-	for (auto cur_pool : pools) {
-		for (T ip_desc : cur_pool) {
+void PoolCollection<T>::output_pools(std::ostream& out, const std::vector<PoolCollection::ip_pool_ptr>& pools) {
+	for (auto *cur_pool : pools) {
+		for (T ip_desc : *cur_pool) {
 			/*std::string ip = fn_prepare_ip(ip_desc);*/
 			std::string ip = unpack_ip(ip_desc);
 			out << ip << "\n";
 		}
 	}
 }
+
+// TODO! Don't call unpack_ip (make special structure)
+template<typename T>
+void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
+	ip_pool<T>& pool = base_pool;
+
+	// Output sorted base_pool
+	output_pools(out, std::vector{ &pool });
+
+	// Helpers
+	auto fnOutputIp = [this, &out](auto cur_ip) {
+		std::string sIP = this->unpack_ip(cur_ip);
+		out << sIP << endl;
+	};
+	auto fnOutputIpRange = [&pool, &fnOutputIp](auto itFirst, auto itLast) {
+		std::for_each(itFirst, itLast, fnOutputIp);
+	};
+
+	// Output ip which started 1
+	auto itFirst1 = find_if_not(std::reverse_iterator(pool.rbegin()), pool.rend(), check_started_1).base();
+	fnOutputIpRange(itFirst1, pool.end());
+
+	// Output ip which started 46.70
+	auto fnFirstEq46 = [](const T& ip_parts) {
+		return ip_parts[0] == 46;
+	};
+	auto fnSecondEq70 = [](const T& ip_parts) {
+		return ip_parts[1] == 70;
+	};
+	auto fnExists46 = [](const T& ip_parts) {
+		return any_of(ip_parts.begin(), ip_parts.end(),
+			[](int part) {return part == 46; });
+	};
+	auto itFirst46 = find_if(pool.begin(), pool.end(), fnFirstEq46);
+	auto itFirstNot46 = find_if_not(itFirst46, pool.end(), fnFirstEq46);
+	auto itCurrent = itFirst46;
+	auto itFirstSecond70 = find_if(itCurrent, itFirstNot46, fnSecondEq70);
+	auto itFirstSecondNot70 = find_if_not(itFirstSecond70 + 1, itFirstNot46, fnSecondEq70);
+	fnOutputIpRange(itFirstSecond70, itFirstSecondNot70);
+
+	// Output ip which contained 46
+	std::for_each(pool.begin(), pool.end(), [this, &out, &fnExists46](const T& ip_parts) {
+		if (fnExists46(ip_parts))
+			out << this->unpack_ip(ip_parts) << endl;
+		});
+}
+
 
 void run(std::istream &in, std::ostream &out) {
 	using PoolCol = PoolCollection<vecint>;
@@ -147,11 +200,17 @@ void run(std::istream &in, std::ostream &out) {
 	//  reverse lexicographically sort
 	ip_pools_col.base_sort();
 
-	// Prepare classified pools
-	ip_pools_col.classify();
+	if (!ENABLED_OPTIMIZE_MEMORY) {
+		// Prepare classified pools
+		ip_pools_col.classify();
+		//// Output
+		ip_pools_col.output_pools(out, ip_pools_col.get());
+	}
+	else {
+		ip_pools_col.filtering_and_output_pools(out);
+	}
 
-	//// Output
-	ip_pools_col.output_pools(out);
+
 	/*auto ip_pools = ip_pools_col.get();
 	output_pools<vecint>(out, ip_pools, unpack_ip);*/
 }

@@ -1,0 +1,9 @@
+#pragma once
+
+#cmakedefine OPTIMIZE_MEMORY @OPTIMIZE_MEMORY@
+const bool ENABLED_OPTIMIZE_MEMORY = 
+#ifdef OPTIMIZE_MEMORY
+	true;
+#else
+	false;
+#endif

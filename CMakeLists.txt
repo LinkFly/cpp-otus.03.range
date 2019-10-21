@@ -11,6 +11,8 @@ set(SOURCES_LIB
 	ip_filter_lib.cpp
 	)
 
+option(OPTIMIZE_MEMORY "Enable memory optimization" true)
+configure_file(config.h.in config.h)
 add_executable(ip_filter ${SOURCES} ${HEADERS_LIB})
 add_library(ip_filter_lib STATIC ${SOURCES_LIB} ${HEADERS_LIB})
 target_link_libraries(ip_filter ip_filter_lib)
