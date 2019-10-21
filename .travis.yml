@@ -5,7 +5,8 @@ addons:
   apt:
     packages:
     - libboost-test-dev
-	- libboost
+    - libboost
+
 # for tech commit
 script:
 - pwd
