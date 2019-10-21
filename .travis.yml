@@ -5,14 +5,15 @@ addons:
   apt:
     packages:
 #    - libboost-test-dev
-    - libboost-all-dev
+#    - libboost-all-dev # it works
+     - libboost-filesystem-dev
 
 # for tech commit
 script:
 - pwd
 - ls
-#- mkdir build
-#- cd build
+- mkdir build
+- cd build
 - cmake ..
 - cmake --build .
 - cmake --build . --target tests
