@@ -5,6 +5,7 @@ addons:
   apt:
     packages:
     - libboost-test-dev
+	- libboost-filesystem
 script:
 - pwd
 - ls
