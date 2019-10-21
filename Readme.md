@@ -1,13 +1,13 @@
-Program *ip_filter*
--------------
+# Program *ip_filter*
 
-*Using:*
+**Using:**
 
 `ip_filter < [data_file_pathname]`
 
-data_file_pathname - data file in format like ip_filter.tsv
+[data_file_pathname] - data file in format like ip_filter.tsv
 
-*Tests:*
+-------------------------
+**Tests:**
 
  - local development:
 ```
