@@ -151,12 +151,11 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	output_pools(out, std::vector{ &pool });
 
 	// Helpers
-	auto fnOutputIp = [this, &out](auto cur_ip) {
-		std::string sIP = this->unpack_ip(cur_ip);
-		out << sIP << endl;
-	};
-	auto fnOutputIpRange = [&pool, &fnOutputIp](auto itFirst, auto itLast) {
-		std::for_each(itFirst, itLast, fnOutputIp);
+	auto fnOutputIpRange = [this, &out](auto itFirst, auto itLast) {
+		std::for_each(itFirst, itLast, [this, &out](auto cur_ip) {
+			std::string sIP = this->unpack_ip(cur_ip);
+			out << sIP << endl;
+			});
 	};
 
 	// Output ip which started 1
