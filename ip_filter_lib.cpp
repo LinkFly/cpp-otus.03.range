@@ -145,10 +145,11 @@ void PoolCollection<T>::output_pools(std::ostream& out, const std::vector<PoolCo
 // TODO! Don't call unpack_ip (make special structure)
 template<typename T>
 void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
+	using ip_pool_iterator = typename ip_pool<T>::iterator;
 	ip_pool<T>& pool = base_pool;
 
 	// Output sorted base_pool
-	output_pools(out, std::vector{ &pool });
+	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
 
 	// Helpers
 	auto fnOutputIpRange = [this, &out](auto itFirst, auto itLast) {
@@ -159,7 +160,7 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	};
 
 	// Output ip which started 1
-	auto itFirst1 = find_if_not(std::reverse_iterator(pool.rbegin()), pool.rend(), check_started_1).base();
+	auto itFirst1 = find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), check_started_1).base();
 	fnOutputIpRange(itFirst1, pool.end());
 
 	// Output ip which started 46.70

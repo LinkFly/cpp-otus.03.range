@@ -46,7 +46,7 @@ struct PoolCollection {
 	void classify();
 	std::vector<ip_pool_ptr> get();
 	std::string unpack_ip(const T& ip_parts);
-	void PoolCollection<T>::output_pools(std::ostream& out, const std::vector<ip_pool_ptr>& pools);
+	void output_pools(std::ostream& out, const std::vector<ip_pool_ptr>& pools);
 	void filtering_and_output_pools(std::ostream& out);
 private:
 	void pool_sort(ip_pool<T>& ip_pool);
