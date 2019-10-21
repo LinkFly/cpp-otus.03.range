@@ -10,8 +10,8 @@ addons:
 script:
 - pwd
 - ls
-- mkdir build
-- cd build
+#- mkdir build
+#- cd build
 - cmake ..
 - cmake --build .
 - cmake --build . --target tests
