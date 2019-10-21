@@ -4,8 +4,8 @@ compiler: clang
 addons:
   apt:
     packages:
-    - libboost-test-dev
-    - libboost
+#    - libboost-test-dev
+    - libboost-all-dev
 
 # for tech commit
 script:
