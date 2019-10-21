@@ -142,6 +142,59 @@ void PoolCollection<T>::output_pools(std::ostream& out, const std::vector<PoolCo
 	}
 }
 
+template<class ForwardIt, class T, class Func>
+ForwardIt lower_bound_myex(ForwardIt first, ForwardIt last, const T& value, Func& fnCorrectVal)
+{
+	ForwardIt it;
+	std::iterator_traits<ForwardIt>::difference_type count, step;
+	count = std::distance(first, last);
+	// TODO!!! Analyze it!!!
+	while (count > 0) {
+		it = first;
+		step = count / 2;
+		std::advance(it, step);
+		auto curval = fnCorrectVal(*it);
+		if (value < curval) {
+			first = ++it;
+			count -= step + 1;
+		}
+		else if (value > curval) {
+
+		}
+		else {
+			while (it > first) {
+				--it;
+				const int predval = fnCorrectVal(*it);
+				if (predval != value) {
+					return it + 1;
+				}
+			}
+			return it;
+		}
+	}
+	return first;
+}
+
+template<class ForwardIt, class T, class Func>
+ForwardIt lower_bound_ex(ForwardIt first, ForwardIt last, const T& value, Func& fnCorrectVal)
+{
+	ForwardIt it;
+	std::iterator_traits<ForwardIt>::difference_type count, step;
+	count = std::distance(first, last);
+
+	while (count > 0) {
+		it = first;
+		step = count / 2;
+		std::advance(it, step);
+		if (fnCorrectVal(*it) < value) {
+			first = ++it;
+			count -= step + 1;
+		}
+		else count = step;
+	}
+	return first;
+}
+
 // TODO! Don't call unpack_ip (make special structure)
 template<typename T>
 void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
@@ -152,16 +205,68 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
 
 	// Helpers
-	auto fnOutputIpRange = [this, &out](auto itFirst, auto itLast) {
-		std::for_each(itFirst, itLast, [this, &out](auto cur_ip) {
-			std::string sIP = this->unpack_ip(cur_ip);
-			out << sIP << endl;
-			});
+	auto fnIpOutput = [this, &out](auto& cur_ip) {
+		std::string sIP = this->unpack_ip(cur_ip);
+		out << sIP << endl;
+	};
+	// TODO Maybe delete
+	auto fnOutputIpRange = [this, &out, &fnIpOutput](auto itFirst, auto itLast) {
+		std::for_each(itFirst, itLast, fnIpOutput);
+	};
+	auto fnOutputWhile = [this, &out, &fnIpOutput](auto itFirst, auto itLast, auto fnPredicat) {
+		for (auto itCur = itFirst; itCur != itLast; itCur++) {
+			auto& ip = *itCur;
+			if (fnPredicat(ip)) {
+				fnIpOutput(ip);
+			}
+		}
 	};
 
+	cout << "-----------------------\n";
+	/*auto itFinded46 = lower_bound_myex(pool.begin(), pool.end(), 46, [](const T& ip_cur) {
+		return
+			ip_cur[0];
+		});
+	cout << "itFinded46: " << unpack_ip(*itFinded46) << endl;
+	cout << "itFinded46: " << unpack_ip(*(itFinded46 + 1)) << endl;
+	cout << "itFinded46: " << unpack_ip(*(itFinded46 - 1)) << endl;
+	vec_vecint vec; vec.push_back(vecint{ 1 });*/
+	
+	std::vector<int> val{ 10 };
+	std::vector<int> val2{ 9 };
+	std::vector<int> val3{ 8 };
+	std::vector<int> val4{ 3 };
+	std::vector<int> val5{ 2 };
+	std::vector<std::vector<int>> vec;
+	/*vec.push_back(val); vec.push_back(val2); vec.push_back(val3); vec.push_back(val4); vec.push_back(val5);*/
+	/*auto itNum = lower_bound_myex(vec.begin(), vec.end(), 3, [](vecint a) -> int {return a[0]; });*/
+	auto itNum = lower_bound_myex(vec.rbegin(), vec.rend(), 3, [](vecint a) -> int {return a[0]; });
+	/*auto itNum = lower_bound(vec.rbegin(), vec.rend(), vecint{ 1,2,3,4 }, [](vecint a, vecint b) {
+		return b[0] > a[0];
+		});*/
+	cout << "num: " << (*itNum)[0] << endl;
+	/*cout << "num: " << *(itNum + 1) << endl;
+	cout << "num: " << *(itNum - 1) << endl;
+	cout << "num: " << *(itNum + 2) << endl;
+	cout << "num: " << *(itNum - 2) << endl;*/
+	exit(0);
+	/*fnOutputWhile(pool.rbegin(), pool.rend(), check_started_1);*/
+	/*auto itLast1 = pool.rbegin();
+	out << unpack_ip(*itLast1) << endl;
+	itLast1++;
+	out << unpack_ip(*itLast1) << endl;*/
+	
 	// Output ip which started 1
 	auto itFirst1 = find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), check_started_1).base();
 	fnOutputIpRange(itFirst1, pool.end());
+
+	cout << "-----------------------\n";
+	/*auto itFinded46 = std::lower_bound(pool.begin(), pool.end(), [](const T& left_ip, const T& right_ip) {
+		left_ip[0] 
+		});
+	cout << itFinded46 << endl;*/
+	
+
 
 	// Output ip which started 46.70
 	auto fnFirstEq46 = [](const T& ip_parts) {
@@ -175,6 +280,8 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 			[](int part) {return part == 46; });
 	};
 	auto itFirst46 = find_if(pool.begin(), pool.end(), fnFirstEq46);
+	cout << unpack_ip(*itFirst46) << endl;
+	exit(0);
 	auto itFirstNot46 = find_if_not(itFirst46, pool.end(), fnFirstEq46);
 	auto itCurrent = itFirst46;
 	auto itFirstSecond70 = find_if(itCurrent, itFirstNot46, fnSecondEq70);
