@@ -11,11 +11,7 @@
 #include <fstream>
 #include <sstream>
 
-//// Types
-using vecstr = std::vector<std::string>;
-using vecint = std::vector<int>;
-using vec_vecint = std::vector<vecint>;
-using func_str = std::function<void(std::string)>;
+#include "utils.h"
 
 template<class T>
 using ip_pool = std::vector<T>;

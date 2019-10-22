@@ -6,9 +6,11 @@ set(SOURCES
 	)
 set(HEADERS_LIB
 	ip_filter_lib.h
+	utils.h
 	)
 set(SOURCES_LIB
 	ip_filter_lib.cpp
+	utils.cpp
 	)
 set(DATA_FILES
 	Readme.md
