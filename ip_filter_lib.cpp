@@ -12,34 +12,28 @@
 //for debug
 //#include <typeinfo>
 
-#include "ip_filter_lib.h"
 #include "build/config.h"
-#include "utils.h"
+#include "ip_filter_lib.h"
 
 using std::cout;
 using std::endl;
 
-//// Predicats
-bool check_started_1(const vecint& ip_parts) {
-	return ip_parts[0] == 1;
-}
-
-bool check_started_46_70(const vecint& ip_parts) {
-	return ip_parts[0] == 46 && ip_parts[1] == 70;
-}
-
-bool check_second_70(const vecint& ip_parts) {
-	return ip_parts[1] == 70;
-}
-
-bool check_includes_46(const vecint& ip_parts) {
-	for (auto ip_part : ip_parts) {
-		if (ip_part == 46)
-			return true;
+template<int ...targs>
+bool ip_checker(const vecint& ip_parts) {
+	int req_parts[] = { (targs)... };
+	for (int i = 0; i < sizeof...(targs); i++) {
+		if (req_parts[i] != ip_parts[i])
+			return false;
 	}
-	return false;
+	return true;
 }
-///////////////////
+
+auto defAnyChecker(int num) {
+	return [num_ = num](const vecint& ip_parts) {
+		auto fn_eq_num = [num__ = num_](auto part) {return part == num__; };
+		return any_of(ip_parts.begin(), ip_parts.end(), fn_eq_num);
+	};
+}
 
 template<typename T>
 void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
@@ -58,11 +52,11 @@ void PoolCollection<T>::base_sort() {
 template<class T>
 void PoolCollection<T>::classify() {
 	for (auto ip_parts : base_pool) {
-		if (check_started_46_70(ip_parts))
+		if (ip_checker<46, 70>(ip_parts))
 			ip_pool_started_46_70.push_back(ip_parts);
-		if (check_includes_46(ip_parts))
+		if (defAnyChecker(46)(ip_parts))
 			ip_pool_includes_46.push_back(ip_parts);
-		if (check_started_1(ip_parts))
+		if (ip_checker<1>(ip_parts))
 			ip_pool_started_1.push_back(ip_parts);
 	}
 }
@@ -124,18 +118,17 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
 
 	// Output ip which started 1
-	auto itFirst1 = find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), check_started_1).base();
+	auto itFirst1 = find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), ip_checker<1>).base();
 	fnOutputIpRange(itFirst1, pool.end());
 
 	auto itFinded46 = lower_bound_with_convertor(pool.begin(), pool.end(), 46, defExtractor(0));
 	auto itFindedNot46 = lower_bound_with_convertor2(itFinded46, pool.end(), 46, defExtractor(0));
 	auto itFindedSecond70 = lower_bound_with_convertor(itFinded46, itFindedNot46, 70, defExtractor(1));
-	fnOutputWhile(itFindedSecond70, itFindedNot46, check_second_70);
+	fnOutputWhile(itFindedSecond70, itFindedNot46, [](const T& ip_parts) {return ip_parts[1] == 70; });
 
 	// Output ip which includes 46
-	fnOutputWhile(pool.begin(), pool.end(), check_includes_46);
+	fnOutputWhile(pool.begin(), pool.end(), defAnyChecker(46));
 }
-
 
 void run(std::istream &in, std::ostream &out) {
 	using PoolCol = PoolCollection<vecint>;
