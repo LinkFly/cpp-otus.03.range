@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "utils.h"
 
 template<class T>

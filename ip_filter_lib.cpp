@@ -99,10 +99,10 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 		std::string sIP = this->unpack_ip(cur_ip);
 		out << sIP << endl;
 	};
-	auto fnOutputIpRange = [this, &out, &fnIpOutput](auto itFirst, auto itLast) {
+	auto fnOutputIpRange = [&fnIpOutput](auto itFirst, auto itLast) {
 		std::for_each(itFirst, itLast, fnIpOutput);
 	};
-	auto fnOutputWhile = [this, &out, &fnIpOutput](auto itFirst, auto itLast, auto fnPredicat) {
+	auto fnOutputWhile = [&fnIpOutput](auto itFirst, auto itLast, auto fnPredicat) {
 		for (auto itCur = itFirst; itCur != itLast; itCur++) {
 			auto& ip = *itCur;
 			if (fnPredicat(ip)) {
