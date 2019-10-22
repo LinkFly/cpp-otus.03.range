@@ -52,21 +52,7 @@ void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
 
 template<class T>
 void PoolCollection<T>::base_sort() {
-	pool_sort(base_pool);
-}
-
-template<class T>
-void PoolCollection<T>::pool_sort(ip_pool<T>& ip_pool) {
-	std::sort(ip_pool.begin(), ip_pool.end(), [](const T& vs_left, const T& vs_right) -> bool {
-		for (int i = 0; i < 4; i++) {
-			int num_left = vs_left[i];
-			int num_right = vs_right[i];
-			if (num_left != num_right) {
-				return num_left > num_right;
-			}
-		}
-		return false;
-		});
+	sort(base_pool.rbegin(), base_pool.rend());
 }
 
 template<class T>
