@@ -56,7 +56,7 @@ ForwardIt lower_bound_with_convertor(ForwardIt start, ForwardIt end, const T& el
 	}
 	return idx_finded;
 }
-
+// TODO!!! Rename!!!
 template<class ForwardIt, class T, class Func>
 ForwardIt lower_bound_with_convertor2(ForwardIt start, ForwardIt end, const T& el, Func convertor)
 {

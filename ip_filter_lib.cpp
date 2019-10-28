@@ -46,7 +46,7 @@ void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
 
 template<class T>
 void PoolCollection<T>::base_sort() {
-	sort(base_pool.rbegin(), base_pool.rend());
+	sort(base_pool.begin(), base_pool.end(), std::greater<T>());
 }
 
 template<class T>
