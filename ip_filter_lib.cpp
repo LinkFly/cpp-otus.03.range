@@ -110,9 +110,6 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 			}
 		}
 	};
-	auto defExtractor = [](int part_idx) {
-		return [idx=part_idx](const T& ip_cur) {return ip_cur[idx]; };
-	};
 
 	// Output sorted base_pool
 	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
@@ -121,9 +118,14 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	auto itFirst1 = find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), ip_checker<1>).base();
 	fnOutputIpRange(itFirst1, pool.end());
 
-	auto itFinded46 = lower_bound_with_convertor(pool.begin(), pool.end(), 46, defExtractor(0));
-	auto itFindedNot46 = lower_bound_with_convertor2(itFinded46, pool.end(), 46, defExtractor(0));
-	auto itFindedSecond70 = lower_bound_with_convertor(itFinded46, itFindedNot46, 70, defExtractor(1));
+	auto fnLowerBound = [](T left, int value) {return left[0] > value; };
+	auto fnLowerBoundIdx1 = [](T left, int value) {return left[1] > value; };
+	auto fnUppperBound = [](int value, auto right) {return value > right[0]; };
+
+	auto itFinded46 = lower_bound(pool.begin(), pool.end(), 46, fnLowerBound);
+	auto itFindedNot46 = upper_bound(itFinded46, pool.end(), 46, fnUppperBound);
+	auto itFindedSecond70 = lower_bound(itFinded46, itFindedNot46, 70, fnLowerBoundIdx1);
+
 	fnOutputWhile(itFindedSecond70, itFindedNot46, [](const T& ip_parts) {return ip_parts[1] == 70; });
 
 	// Output ip which includes 46
