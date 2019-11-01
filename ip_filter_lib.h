@@ -4,6 +4,11 @@
 
 #include "utils.h"
 
+//// Types
+
+using Byte = unsigned char;
+using Ip = std::array<Byte, 4>;
+
 template<class T>
 using ip_pool = std::vector<T>;
 
@@ -20,7 +25,7 @@ void read_lines(std::istream& stream, func_str fn_line_handler);
 std::vector<std::string> split(const std::string& str, char d);
 //////////////////////////////////////
 
-template<class T = vecstr>
+template<class T>
 struct PoolCollection {
 	using ip_pool_ptr = ip_pool<T>*;
 	ip_pool<T> base_pool, ip_pool_started_1, ip_pool_started_46_70, ip_pool_includes_46;

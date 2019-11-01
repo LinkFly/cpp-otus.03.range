@@ -4,33 +4,37 @@
 #include <fstream>
 //#include <filesystem>
 #include <boost/filesystem.hpp>
+#include <ctime>
+//#include <dos.h>
+#include <chrono>
+#include <thread>
 
 #include "ip_filter_lib.h"
 #include "utils.h"
 
 using std::cout;
 using std::endl;
+using std::string;
 
-bool test() {return true;}
+struct BaseFixtures {
+	string str_in;
+	string str_out;
+} base_fixtures;
 
-std::string lines_str(vecstr vec) {
-	std::ostringstream sout;
-	for (auto s : vec) {
-		sout << s << "\n";
-	}
-	return sout.str();
-}
+struct test_data {
+	std::istringstream in;
+	string* ptr_output_str;
+};
 
-vecstr read_file(std::string filename) {
-	vecstr vec;
+string read_file(std::string filename) {
 	std::ifstream fin(filename, std::ios::in);
-	read_lines(fin, [&vec](std::string line) {
-		vec.push_back(line);
-		});
-	return vec;
+	string res;
+	for (std::string line; std::getline(fin, line);)
+		res += (line + "\n");
+	return res;
 }
 
-bool test_of_true_filtering() {
+std::tuple<std::string, std::string> get_fixtures_files() {
 	/*std::filesystem::path cwd = std::filesystem::current_path();*/
 	boost::filesystem::path cwd = boost::filesystem::current_path();
 	auto test_files_dir = cwd / "..";
@@ -45,21 +49,50 @@ bool test_of_true_filtering() {
 		std::cerr << "not found file_test: " << file_test << std::endl;
 		exit(2);
 	}
+	return std::tuple{ file_in, file_test };
+}
 
-	std::ifstream fin(file_in, std::ios::in);
+// Before all tests
+void init_base_fixtures() {
+	auto [file_in, file_out] = get_fixtures_files();
+	base_fixtures.str_in = read_file(file_in);
+	base_fixtures.str_out = read_file(file_out);
+}
+
+// Before each test
+test_data create_test_data() {
+	test_data test_data;
+	test_data.in = std::istringstream{ base_fixtures.str_in };
+	test_data.ptr_output_str = &base_fixtures.str_out;
+	return test_data;
+}
+
+//bool test_read_ips() {
+//	
+//	PoolCollection<Ip> poolCol;
+//	return false;
+//}
+bool test_of_true_filtering() {
+	test_data test_data = create_test_data();
+
 	std::ostringstream outres;
-	run(fin, outres);
-	auto vec = read_file(file_test);
-	auto bigstr = lines_str(vec);
-	return bigstr == outres.str();
+	auto startTime = clock();
+	run(test_data.in, outres);
+	auto endTime = clock();
+	auto res = outres.str() == *test_data.ptr_output_str;
+	
+	cout << "TIME: " << endTime - startTime << "ms" << endl;
+	
+	return res;
 }
 
 BOOST_AUTO_TEST_SUITE(ip_filter_test_suite)
 
+
 BOOST_AUTO_TEST_CASE(test_of_test_system)
 {
-  BOOST_CHECK(test());
-  BOOST_CHECK(test_of_true_filtering());
+	init_base_fixtures();
+	BOOST_CHECK(test_of_true_filtering());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

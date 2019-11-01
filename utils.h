@@ -4,9 +4,7 @@
 #include <functional>
 
 //// Types
-using vecstr = std::vector<std::string>;
-using vecint = std::vector<int>;
-using vec_vecint = std::vector<vecint>;
+
 using func_str = std::function<void(std::string)>;
 
 //// Utils

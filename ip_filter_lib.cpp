@@ -19,7 +19,7 @@ using std::cout;
 using std::endl;
 
 template<int ...targs>
-bool ip_checker(const vecint& ip_parts) {
+bool ip_checker(const Ip& ip_parts) {
 	int req_parts[] = { (targs)... };
 	for (int i = 0; i < sizeof...(targs); i++) {
 		if (req_parts[i] != ip_parts[i])
@@ -29,18 +29,21 @@ bool ip_checker(const vecint& ip_parts) {
 }
 
 auto defAnyChecker(int num) {
-	return [num_ = num](const vecint& ip_parts) {
+	return [num_ = num](const Ip& ip_parts) {
 		auto fn_eq_num = [num__ = num_](auto part) {return part == num__; };
-		return any_of(ip_parts.begin(), ip_parts.end(), fn_eq_num);
+		return std::any_of(ip_parts.begin(), ip_parts.end(), fn_eq_num);
 	};
 }
 
 template<typename T>
 void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
-	vecstr v = split(line, '\t');
-	vecstr snums = split(v.at(0), '.');
-	vecint ip_parts;
-	for (auto snum : snums) { ip_parts.push_back(stoi(snum)); }
+	std::vector<std::string> v = split(line, '\t');
+	std::vector<std::string> snums = split(v.at(0), '.');
+	Ip ip_parts;
+	for (int i = 0; i < 4; i++) {
+		using ip_part_type = typename std::remove_reference<decltype(ip_parts[i])>::type;
+		ip_parts[i] = static_cast<ip_part_type>(stoi(snums[i]));
+	}
 	ip_pool.push_back(ip_parts);
 }
 
@@ -73,7 +76,7 @@ std::string PoolCollection<T>::unpack_ip(const T& ip_parts) {
 		if (it != ip_parts.cbegin()) {
 			ostr << ".";
 		}
-		ostr << *it;
+		ostr << (int)*it;
 	}
 	return ostr.str();
 }
@@ -133,7 +136,7 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 }
 
 void run(std::istream &in, std::ostream &out) {
-	using PoolCol = PoolCollection<vecint>;
+	using PoolCol = PoolCollection<Ip>;
 	PoolCol ip_pools_col;
 
 	read_lines(in, [&ip_pools_col](std::string line) {
