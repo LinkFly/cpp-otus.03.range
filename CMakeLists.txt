@@ -16,6 +16,8 @@ set(DATA_FILES
 	Readme.md
 	)
 option(OPTIMIZE_MEMORY "Enable memory optimization" true)
+option(USE_VECTOR "Enable using vector for ip_pool" false)
+option(USE_LIST "Enable using list for ip_pool" false)
 configure_file(config.h.in config.h)
 add_executable(ip_filter ${SOURCES} ${HEADERS_LIB} ${DATA_FILES})
 add_library(ip_filter_lib STATIC ${SOURCES_LIB} ${HEADERS_LIB})

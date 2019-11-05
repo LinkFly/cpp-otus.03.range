@@ -48,8 +48,9 @@ void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
 }
 
 template<class T>
-void PoolCollection<T>::base_sort() {
-	sort(base_pool.begin(), base_pool.end(), std::greater<T>());
+void PoolCollection<T>::base_sort(ip_pool<T>* ip_pool) {
+	if (ip_pool == nullptr) ip_pool = &base_pool;
+	ip_pool->sort(std::greater<T>());
 }
 
 template<class T>
@@ -118,7 +119,7 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
 
 	// Output ip which started 1
-	auto itFirst1 = find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), ip_checker<1>).base();
+	auto itFirst1 = std::find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), ip_checker<1>).base();
 	fnOutputIpRange(itFirst1, pool.end());
 
 	auto fnLowerBound = [](T left, int value) {return left[0] > value; };
@@ -135,13 +136,18 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	fnOutputWhile(pool.begin(), pool.end(), defAnyChecker(46));
 }
 
+template<typename T>
+void PoolCollection<T>::read_to_pool(std::istream& in, ip_pool<T>& ip_pool) {
+	read_lines(in, [&ip_pool](std::string line) {
+		add_from_line(ip_pool, line);
+		});
+}
+
 void run(std::istream &in, std::ostream &out) {
 	using PoolCol = PoolCollection<Ip>;
 	PoolCol ip_pools_col;
 
-	read_lines(in, [&ip_pools_col](std::string line) {
-		PoolCol::add_from_line(ip_pools_col.base_pool, line);
-	});
+	ip_pools_col.read_to_pool(in, ip_pools_col.base_pool);
 
 	//  reverse lexicographically sort
 	ip_pools_col.base_sort();

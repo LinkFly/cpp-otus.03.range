@@ -1,0 +1,91 @@
+---------- Config ----------
+#pragma once
+
+#define OPTIMIZE_MEMORY ON
+const bool ENABLED_OPTIMIZE_MEMORY = 
+#ifdef OPTIMIZE_MEMORY
+	true;
+#else
+	false;
+#endif
+
+/* #undef USE_VECTOR */
+
+#define USE_LIST on
+
+#ifdef USE_VECTOR
+	#ifdef USE_LIST
+		static_assert("Denied using both USE_VECTOR and USE_LIST (please select one)")
+	#endif
+#else
+	#ifndef USE_LIST
+		#define USE_LIST ON
+	#endif
+#endif
+---------- end Config ----------
+Running 5 tests ...
+---------------------------
+----- Running test N 1
+Running 1 test case...
+
+bool __cdecl test_read_to_pool(void):
+TIME: 77ms
+
+bool __cdecl test_sort_of_pool(void):
+test params: factor = 20, count = 20736
+TIME: 313ms
+
+bool __cdecl test_of_true_filtering(void):
+TIME: 72ms
+---------------------------
+----- Running test N 2
+Running 1 test case...
+
+bool __cdecl test_read_to_pool(void):
+TIME: 56ms
+
+bool __cdecl test_sort_of_pool(void):
+test params: factor = 20, count = 20736
+TIME: 750ms
+
+bool __cdecl test_of_true_filtering(void):
+TIME: 60ms
+---------------------------
+----- Running test N 3
+Running 1 test case...
+
+bool __cdecl test_read_to_pool(void):
+TIME: 33ms
+
+bool __cdecl test_sort_of_pool(void):
+test params: factor = 20, count = 20736
+TIME: 255ms
+
+bool __cdecl test_of_true_filtering(void):
+TIME: 61ms
+---------------------------
+----- Running test N 4
+Running 1 test case...
+
+bool __cdecl test_read_to_pool(void):
+TIME: 40ms
+
+bool __cdecl test_sort_of_pool(void):
+test params: factor = 20, count = 20736
+TIME: 267ms
+
+bool __cdecl test_of_true_filtering(void):
+TIME: 60ms
+---------------------------
+----- Running test N 5
+Running 1 test case...
+
+bool __cdecl test_read_to_pool(void):
+TIME: 38ms
+
+bool __cdecl test_sort_of_pool(void):
+test params: factor = 20, count = 20736
+TIME: 263ms
+
+bool __cdecl test_of_true_filtering(void):
+TIME: 60ms
