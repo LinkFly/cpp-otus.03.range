@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <random>
 #include <cmath>
+#include <type_traits>
 
 #include "ip_filter_lib.h"
 #include "utils.h"
