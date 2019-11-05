@@ -4,6 +4,7 @@
 #include <array>
 #include <map>
 #include <algorithm>
+#include <list>
 
 #include "build/config.h"
 #include "utils.h"
