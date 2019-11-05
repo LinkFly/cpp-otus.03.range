@@ -174,11 +174,11 @@ std::vector<Ip> to_vector(T& list) {
 void pool_shuffle(ip_pool<Ip>& pool) {
 	std::random_device rd;
 	std::mt19937 g(rd());
-	if constexpr (std::is_same_v<std::vector<Ip>, decltype(pool)>) {
+	if constexpr (std::is_same<std::vector<Ip>, decltype(pool)>::value) {
 		shuffle(pool.begin(), pool.end(), g);
 		return;
 	}
-	else if (std::is_same_v<std::list<Ip>, decltype(pool)>) {
+	else if (std::is_same<std::list<Ip>, decltype(pool)>::value) {
 		std::vector<Ip> vec = to_vector(pool);
 		shuffle(vec.begin(), vec.end(), g);
 		for (int i = 0; i < vec.size(); i++) {
