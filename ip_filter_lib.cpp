@@ -131,7 +131,7 @@ struct Bounds {
 	getBoundsByIpMask(pool.begin(), pool.end(), "46.70.*.*"s)
 */
 template<class Iter>
-Bounds<Iter> getBoundsByIpMask(Iter itStart, Iter itEnd, std::string& sIpMask) {
+Bounds<Iter> getBoundsByIpMask(Iter itStart, Iter itEnd, const std::string& sIpMask) {
 	IpMask ipMask = parseIpMask(sIpMask);
 	Bounds<Iter> res;
 	res.lower = lower_bound(itStart, itEnd, ipMask.lower, std::greater{});
@@ -153,10 +153,10 @@ filtering_and_output_by_mask(out, pool, "46.70.*.*"s);
 */
 template<typename T>
 void PoolCollection<T>::filtering_and_output_by_mask(
-	std::ostream& out, ip_pool<T>& pool, string& ip_mask)
+	std::ostream& out, ip_pool<T>& pool, const string& ip_mask)
 {
 	auto fnIpOutput = PoolCollection<T>::getFnIpOutput(out);
-	Bounds<ip_pool<T>::iterator> bounds = getBoundsByIpMask<ip_pool<T>::iterator>(
+	Bounds<typename ip_pool<T>::iterator> bounds = getBoundsByIpMask<typename ip_pool<T>::iterator>(
 		pool.begin(), pool.end(), ip_mask);
 	std::for_each(bounds.lower, bounds.upper, fnIpOutput);
 }

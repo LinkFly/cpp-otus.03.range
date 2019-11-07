@@ -146,7 +146,7 @@ struct PoolCollection {
 	void output_pools(std::ostream& out, const std::vector<ip_pool_ptr>& pools);
 	static auto getFnIpOutput(std::ostream& out);
 	static void filtering_and_output_by_mask(
-		std::ostream& out, ip_pool<T>& pool, string& ip_mask);
+		std::ostream& out, ip_pool<T>& pool, const string& ip_mask);
 	void filtering_and_output_pools(std::ostream& out);
 };
 
