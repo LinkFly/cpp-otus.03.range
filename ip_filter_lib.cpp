@@ -9,6 +9,7 @@
 #include <functional>
 #include <fstream>
 #include <sstream>
+
 //for debug
 //#include <typeinfo>
 
@@ -17,6 +18,8 @@
 
 using std::cout;
 using std::endl;
+using std::string;
+using namespace std::string_literals;
 
 template<int ...targs>
 bool ip_checker(const Ip& ip_parts) {
@@ -92,20 +95,81 @@ void PoolCollection<T>::output_pools(std::ostream& out, const std::vector<PoolCo
 	}
 }
 
-// TODO! Don't call unpack_ip (make special structure)
+struct IpMask {
+	Ip lower;
+	Ip upper;
+};
+
+// Return struct for using into getBoundsByIpMask
+IpMask parseIpMask(std::string mask) {
+	IpMask res;
+	std::vector<std::string> ip_parts = split(mask, '.');
+	auto idx = 0;
+	for (auto& ip_part : ip_parts) {
+		if (ip_part == "*") {
+			res.lower[idx] = 255;
+			res.upper[idx] = 0;
+		}
+		else {
+			auto ipart = stoi(ip_part);
+			res.lower[idx] = ipart;
+			res.upper[idx] = ipart;
+		}
+		++idx;
+	}
+	return res;
+}
+
+template<typename Iter>
+struct Bounds {
+	Iter lower;
+	Iter upper;
+};
+
+// Return lower&upper iterators with finded bounds included all ip's match sIpMask
+/** Example: 
+	getBoundsByIpMask(pool.begin(), pool.end(), "46.70.*.*"s)
+*/
+template<class Iter>
+Bounds<Iter> getBoundsByIpMask(Iter itStart, Iter itEnd, std::string& sIpMask) {
+	IpMask ipMask = parseIpMask(sIpMask);
+	Bounds<Iter> res;
+	res.lower = lower_bound(itStart, itEnd, ipMask.lower, std::greater{});
+	res.upper = upper_bound(res.lower, itEnd, ipMask.upper, std::greater{});
+	return res;
+}
+
+// Return lambda which unpack and output ip
+template<typename T>
+auto PoolCollection<T>::getFnIpOutput(std::ostream& out) {
+	return [&out](auto& cur_ip) {
+		std::string sIP = PoolCollection<T>::unpack_ip(cur_ip);
+		out << sIP << endl;
+	};
+}
+
+/** Example:
+filtering_and_output_by_mask(out, pool, "46.70.*.*"s);
+*/
+template<typename T>
+void PoolCollection<T>::filtering_and_output_by_mask(
+	std::ostream& out, ip_pool<T>& pool, string& ip_mask)
+{
+	auto fnIpOutput = PoolCollection<T>::getFnIpOutput(out);
+	Bounds<ip_pool<T>::iterator> bounds = getBoundsByIpMask<ip_pool<T>::iterator>(
+		pool.begin(), pool.end(), ip_mask);
+	std::for_each(bounds.lower, bounds.upper, fnIpOutput);
+}
+
+// TODO! (Analize it) Don't call unpack_ip (make special structure)
 template<typename T>
 void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	using ip_pool_iterator = typename ip_pool<T>::iterator;
 	ip_pool<T>& pool = base_pool;
 
-	// Helpers
-	auto fnIpOutput = [this, &out](auto& cur_ip) {
-		std::string sIP = this->unpack_ip(cur_ip);
-		out << sIP << endl;
-	};
-	auto fnOutputIpRange = [&fnIpOutput](auto itFirst, auto itLast) {
-		std::for_each(itFirst, itLast, fnIpOutput);
-	};
+	//// Helpers
+	auto fnIpOutput = PoolCollection<T>::getFnIpOutput(out);
+
 	auto fnOutputWhile = [&fnIpOutput](auto itFirst, auto itLast, auto fnPredicat) {
 		for (auto itCur = itFirst; itCur != itLast; itCur++) {
 			auto& ip = *itCur;
@@ -114,23 +178,18 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 			}
 		}
 	};
+	//// end Helpers
 
 	// Output sorted base_pool
 	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
 
 	// Output ip which started 1
 	auto itFirst1 = std::find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), ip_checker<1>).base();
-	fnOutputIpRange(itFirst1, pool.end());
+	/*fnOutputIpRange(itFirst1, pool.end());*/
+	std::for_each(itFirst1, pool.end(), fnIpOutput);
 
-	auto fnLowerBound = [](T left, int value) {return left[0] > value; };
-	auto fnLowerBoundIdx1 = [](T left, int value) {return left[1] > value; };
-	auto fnUppperBound = [](int value, auto right) {return value > right[0]; };
-
-	auto itFinded46 = lower_bound(pool.begin(), pool.end(), 46, fnLowerBound);
-	auto itFindedNot46 = upper_bound(itFinded46, pool.end(), 46, fnUppperBound);
-	auto itFindedSecond70 = lower_bound(itFinded46, itFindedNot46, 70, fnLowerBoundIdx1);
-
-	fnOutputWhile(itFindedSecond70, itFindedNot46, [](const T& ip_parts) {return ip_parts[1] == 70; });
+	// Output ip which started 47.70.
+	filtering_and_output_by_mask(out, pool, "46.70.*.*"s);
 
 	// Output ip which includes 46
 	fnOutputWhile(pool.begin(), pool.end(), defAnyChecker(46));

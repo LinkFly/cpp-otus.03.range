@@ -208,7 +208,8 @@ bool check_sorted_pool(ip_pool<Ip>& ip_pool, int max) {
 }
 
 bool test_sort_of_pool() {
-	const int factor = 20;
+	/*const int factor = 20;*/
+	const int factor = 50;
 	const int ip_part_count = 256 / factor;
 	const int count = ip_part_count * ip_part_count * ip_part_count * ip_part_count;
 	std::array<Byte, 4> ips[count];

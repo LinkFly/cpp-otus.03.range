@@ -5,6 +5,7 @@
 #include <map>
 #include <algorithm>
 #include <list>
+#include <string>
 
 #include "build/config.h"
 #include "utils.h"
@@ -13,6 +14,7 @@
 
 using Byte = unsigned char;
 using Ip = std::array<Byte, 4>;
+using std::string;
 
 template<typename T, class Iter, class RevIter>
 class iip_pool {
@@ -140,8 +142,11 @@ struct PoolCollection {
 	void base_sort(ip_pool<T>* ip_pool = nullptr);
 	void classify();
 	std::vector<ip_pool_ptr> get();
-	std::string unpack_ip(const T& ip_parts);
+	static std::string unpack_ip(const T& ip_parts);
 	void output_pools(std::ostream& out, const std::vector<ip_pool_ptr>& pools);
+	static auto getFnIpOutput(std::ostream& out);
+	static void filtering_and_output_by_mask(
+		std::ostream& out, ip_pool<T>& pool, string& ip_mask);
 	void filtering_and_output_pools(std::ostream& out);
 };
 
