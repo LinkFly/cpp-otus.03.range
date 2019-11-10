@@ -11,10 +11,6 @@ addons:
 
 # for tech commit
 script:
-#- sudo pip3 install --upgrade pip3
-#- sudo pip3 install --upgrade pip
-#- sudo pip3 install conan
-#- sudo pip install conan
 - pip install --user conan
 - pwd
 - ls
