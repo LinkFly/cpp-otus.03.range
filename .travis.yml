@@ -10,10 +10,12 @@ addons:
 
 # for tech commit
 script:
+- sudo pip install conan
 - pwd
 - ls
 - mkdir build
 - cd build
+- conan install ..
 - cmake ..
 - cmake --build .
 - cmake --build . --target tests
