@@ -13,7 +13,7 @@ addons:
 script:
 #- sudo pip3 install --upgrade pip
 - sudo pip3 install conan
-- sudo pip install
+- sudo pip install conan
 - pwd
 - ls
 - mkdir build
