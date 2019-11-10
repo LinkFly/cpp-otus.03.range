@@ -33,7 +33,7 @@ target_link_libraries(range ip_filter_lib)
 set_target_properties(range ip_filter_lib PROPERTIES
 	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED ON
-	IF(WIN32)
+	IF(WIN32 AND _MSC_VER)
 		#COMPILE_OPTIONS "-Wall" # A lot of messages (in std libraries)
 		COMPILE_OPTIONS "/permissive-;/experimental:preprocessor"
 	ELSE()
