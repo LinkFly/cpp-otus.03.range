@@ -25,9 +25,9 @@ using namespace std::string_literals;
 //using namespace std::literals;
 //using namespace std::placeholders;
 
-namespace rv = ranges::v3::view;
-//namespace rs = ranges::v3;
-//namespace ra = ranges::v3::action;
+//using namespace ranges;
+namespace rv = ranges::views;
+//namespace ra = ranges::actions;
 
 template<int ...targs>
 bool ip_checker(const Ip& ip_parts) {
@@ -43,6 +43,16 @@ template<int ip_part>
 bool any_checker(const Ip& ip_parts) {
 	return std::any_of(ip_parts.begin(), ip_parts.end(),
 		[](auto part) {return part == ip_part; });
+}
+
+template<class T>
+void ip_pool_vector<T>::sort(std::function<bool(const T & left, const T & right)> predicat) {
+	ranges::sort(pool, predicat);
+}
+
+template<class T>
+void ip_pool_arlist<T>::sort(std::function<bool(const T & left, const T & right)> predicat) {
+	pool.sort(predicat);
 }
 
 template<typename T>

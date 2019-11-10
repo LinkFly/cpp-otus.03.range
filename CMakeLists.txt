@@ -11,6 +11,7 @@ set(SOURCES
 	ip_filter.cpp
 	)
 set(HEADERS_LIB
+	build/config.h
 	ip_filter_lib.h
 	utils.h
 	)

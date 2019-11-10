@@ -7,6 +7,7 @@
 #include <list>
 #include <string>
 
+
 #include "build/config.h"
 #include "utils.h"
 
@@ -63,9 +64,7 @@ public:
 	size_t size() {
 		return pool.size();
 	}
-	void sort(std::function<bool(const T & left, const T & right)> predicat) {
-		std::sort(begin(), end(), predicat);
-	}
+	void sort(std::function<bool(const T & left, const T & right)> predicat);
 };
 
 template<class T>
@@ -105,9 +104,7 @@ public:
 	size_t size() {
 		return pool.size();
 	}
-	void sort(std::function<bool(const T & left, const T & right)> predicat) {
-		pool.sort(predicat);
-	}
+	void sort(std::function<bool(const T & left, const T & right)> predicat);
 };
 
 #ifdef USE_VECTOR
