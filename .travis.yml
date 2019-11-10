@@ -10,6 +10,7 @@ addons:
 
 # for tech commit
 script:
+- sudo pip install --upgrade pip
 - sudo pip install conan
 - pwd
 - ls
