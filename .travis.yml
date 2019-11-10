@@ -12,7 +12,7 @@ addons:
 script:
 - sudo apt install python3-pip
 - sudo pip install --upgrade pip
-- sudo pip3 install conan
+- sudo pip install conan
 - pwd
 - ls
 - mkdir build
