@@ -25,8 +25,8 @@ using namespace std::string_literals;
 //using namespace std::literals;
 //using namespace std::placeholders;
 
-//namespace rs = ranges::v3;
 namespace rv = ranges::v3::view;
+//namespace rs = ranges::v3;
 //namespace ra = ranges::v3::action;
 
 template<int ...targs>
@@ -50,10 +50,11 @@ void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
 	std::vector<std::string> v = split(line, '\t');
 	std::vector<std::string> snums = split(v.at(0), '.');
 	Ip ip_parts;
+	using ip_part_type = typename std::remove_reference< decltype(ip_parts[0]) >::type;
 	for (int i = 0; i < 4; i++) {
-		using ip_part_type = typename std::remove_reference<decltype(ip_parts[i])>::type;
 		ip_parts[i] = static_cast<ip_part_type>(stoi(snums[i]));
 	}
+
 	ip_pool.push_back(ip_parts);
 }
 
@@ -95,8 +96,7 @@ std::string PoolCollection<T>::unpack_ip(const T& ip_parts) {
 template<typename T>
 void PoolCollection<T>::output_pools(std::ostream& out, const std::vector<PoolCollection::ip_pool_ptr>& pools) {
 	for (auto *cur_pool : pools) {
-		for (T ip_desc : *cur_pool) {
-			std::string ip = unpack_ip(ip_desc);
+		for (const auto& ip : *cur_pool | rv::transform(&unpack_ip)) {
 			out << ip << "\n";
 		}
 	}
@@ -181,9 +181,9 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
 
 	// Output ip which started 1
-	auto itFirst1 = std::find_if_not(std::reverse_iterator<ip_pool_iterator>(pool.rbegin()), pool.rend(), ip_checker<1>).base();
-	/*fnOutputIpRange(itFirst1, pool.end());*/
-	std::for_each(itFirst1, pool.end(), fnIpOutput);
+	for (const auto& ip : pool | rv::reverse | rv::filter(ip_checker<1>) | rv::reverse) {
+		fnIpOutput(ip);
+	}
 
 	// Output ip which started 47.70.
 	filtering_and_output_by_mask(out, pool, "46.70.*.*"s);
