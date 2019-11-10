@@ -1,8 +1,8 @@
-# Program *ip_filter*
+# Program *range*
 
 **Using:**
 
-`ip_filter < [data_file_pathname]`
+`range < [data_file_pathname]`
 
 [data_file_pathname] - data file in format like ip_filter.tsv
 
