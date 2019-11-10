@@ -30,37 +30,38 @@ configure_file(config.h.in config.h)
 add_executable(range ${SOURCES} ${HEADERS_LIB} ${DATA_FILES})
 add_library(ip_filter_lib STATIC ${SOURCES_LIB} ${HEADERS_LIB})
 target_link_libraries(range ip_filter_lib)
-set_target_properties(range ip_filter_lib PROPERTIES
-	CXX_STANDARD 17
-	CXX_STANDARD_REQUIRED ON
-	IF(WIN32 AND _MSC_VER)
-		#COMPILE_OPTIONS "-Wall" # A lot of messages (in std libraries)
-		COMPILE_OPTIONS "/permissive-;/experimental:preprocessor"
-	ELSE()
-		COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
-	ENDIF()
-)
 
 ### tests ###
 add_executable(tests tests.cpp ${HEADERS_LIB})
 find_package(Boost COMPONENTS unit_test_framework filesystem REQUIRED)
+target_link_libraries(tests
+  ${Boost_LIBRARIES}
+  ip_filter_lib
+)
+
+### Share targets properties ###
 set_target_properties(tests PROPERTIES
 	COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
 	INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIRS}
 	LINK_DIRECTORIES ${Boost_LIBRARY_DIRS}
+)
+
+set_target_properties(range ip_filter_lib tests PROPERTIES
 	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED ON
-	IF(WIN32)
-		#COMPILE_OPTIONS "-Wall" # A lot of messages (in std libraries)
-		COMPILE_OPTIONS "/permissive-;/experimental:preprocessor"
-	ELSE()
-		COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
-	ENDIF()
 )
-target_link_libraries(tests
-  ${Boost_LIBRARIES}
-  ip_filter_lib
-  )
+IF(WIN32)
+set_target_properties(range ip_filter_lib tests PROPERTIES
+  #COMPILE_OPTIONS "-Wall" # A lot of messages (in std libraries)
+	COMPILE_OPTIONS "/permissive-;/experimental:preprocessor"
+)
+ELSE()
+set_target_properties(range ip_filter_lib PROPERTIES
+	COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
+)
+ENDIF()
+### end Share targets properties ###
+
 enable_testing()
 add_test(ip_filter_tests tests)
 ###
