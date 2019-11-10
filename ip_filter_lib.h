@@ -123,14 +123,6 @@ public:
 //////////////////////////////////////
 //// Utils
 void read_lines(std::istream& stream, func_str fn_line_handler);
-
-// ("",  '.') -> [""]
-// ("11", '.') -> ["11"]
-// ("..", '.') -> ["", "", ""]
-// ("11.", '.') -> ["11", ""]
-// (".11", '.') -> ["", "11"]
-// ("11.22", '.') -> ["11", "22"]
-std::vector<std::string> split(const std::string& str, char d);
 //////////////////////////////////////
 
 template<class T>

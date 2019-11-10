@@ -13,6 +13,7 @@
 ```
 mkdir build
 cd build
+conan install ..
 cmake ..
 cmake --build . --target tests
 ./Debug/tests

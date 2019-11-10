@@ -9,6 +9,8 @@
 #include <functional>
 #include <fstream>
 #include <sstream>
+#include <range/v3/all.hpp>
+//#include <string_view>
 
 //for debug
 //#include <typeinfo>
@@ -20,6 +22,11 @@ using std::cout;
 using std::endl;
 using std::string;
 using namespace std::string_literals;
+//using namespace std::literals;
+
+//namespace rs = ranges::v3;
+namespace rv = ranges::v3::view;
+//namespace ra = ranges::v3::action;
 
 template<int ...targs>
 bool ip_checker(const Ip& ip_parts) {
@@ -31,17 +38,17 @@ bool ip_checker(const Ip& ip_parts) {
 	return true;
 }
 
-auto defAnyChecker(int num) {
-	return [num_ = num](const Ip& ip_parts) {
-		auto fn_eq_num = [num__ = num_](auto part) {return part == num__; };
-		return std::any_of(ip_parts.begin(), ip_parts.end(), fn_eq_num);
-	};
+template<int ip_part>
+bool any_checker(const Ip& ip_parts) {
+	return std::any_of(ip_parts.begin(), ip_parts.end(),
+		[](auto part) {return part == ip_part; });
 }
 
 template<typename T>
 void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
-	std::vector<std::string> v = split(line, '\t');
-	std::vector<std::string> snums = split(v.at(0), '.');
+
+	std::vector<std::string> v = rv::split(line, '\t');
+	std::vector<std::string> snums = rv::split(v.at(0), '.');
 	Ip ip_parts;
 	for (int i = 0; i < 4; i++) {
 		using ip_part_type = typename std::remove_reference<decltype(ip_parts[i])>::type;
@@ -61,7 +68,7 @@ void PoolCollection<T>::classify() {
 	for (auto ip_parts : base_pool) {
 		if (ip_checker<46, 70>(ip_parts))
 			ip_pool_started_46_70.push_back(ip_parts);
-		if (defAnyChecker(46)(ip_parts))
+		if (any_checker<46>(ip_parts))
 			ip_pool_includes_46.push_back(ip_parts);
 		if (ip_checker<1>(ip_parts))
 			ip_pool_started_1.push_back(ip_parts);
@@ -103,7 +110,7 @@ struct IpMask {
 // Return struct for using into getBoundsByIpMask
 IpMask parseIpMask(std::string mask) {
 	IpMask res;
-	std::vector<std::string> ip_parts = split(mask, '.');
+	std::vector<std::string> ip_parts = rv::split(mask, '.');
 	auto idx = 0;
 	for (auto& ip_part : ip_parts) {
 		if (ip_part == "*") {
@@ -127,7 +134,7 @@ struct Bounds {
 };
 
 // Return lower&upper iterators with finded bounds included all ip's match sIpMask
-/** Example: 
+/** Example:
 	getBoundsByIpMask(pool.begin(), pool.end(), "46.70.*.*"s)
 */
 template<class Iter>
@@ -167,18 +174,8 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	using ip_pool_iterator = typename ip_pool<T>::iterator;
 	ip_pool<T>& pool = base_pool;
 
-	//// Helpers
+	// Helpers
 	auto fnIpOutput = PoolCollection<T>::getFnIpOutput(out);
-
-	auto fnOutputWhile = [&fnIpOutput](auto itFirst, auto itLast, auto fnPredicat) {
-		for (auto itCur = itFirst; itCur != itLast; itCur++) {
-			auto& ip = *itCur;
-			if (fnPredicat(ip)) {
-				fnIpOutput(ip);
-			}
-		}
-	};
-	//// end Helpers
 
 	// Output sorted base_pool
 	output_pools(out, std::vector<ip_pool_ptr>{ &pool });
@@ -192,7 +189,8 @@ void PoolCollection<T>::filtering_and_output_pools(std::ostream& out) {
 	filtering_and_output_by_mask(out, pool, "46.70.*.*"s);
 
 	// Output ip which includes 46
-	fnOutputWhile(pool.begin(), pool.end(), defAnyChecker(46));
+	for (const auto& ip: pool | rv::filter(any_checker<46>))
+		fnIpOutput(ip);
 }
 
 template<typename T>

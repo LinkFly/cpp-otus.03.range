@@ -1,5 +1,11 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.15)
 project(ip_filter VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+
+conan_basic_setup()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "Debug")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "Release")
 
 set(SOURCES
 	ip_filter.cpp
@@ -14,6 +20,7 @@ set(SOURCES_LIB
 	)
 set(DATA_FILES
 	Readme.md
+	conanfile.txt
 	)
 option(OPTIMIZE_MEMORY "Enable memory optimization" true)
 option(USE_VECTOR "Enable using vector for ip_pool" false)
@@ -25,6 +32,12 @@ target_link_libraries(ip_filter ip_filter_lib)
 set_target_properties(ip_filter ip_filter_lib PROPERTIES
 	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED ON
+	IF(WIN32)
+		#COMPILE_OPTIONS "-Wall" # A lot of messages (in std libraries)
+		COMPILE_OPTIONS "/permissive-;/experimental:preprocessor"
+	ELSE()
+		COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
+	ENDIF()
 )
 
 ### tests ###
@@ -36,6 +49,12 @@ set_target_properties(tests PROPERTIES
 	LINK_DIRECTORIES ${Boost_LIBRARY_DIRS}
 	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED ON
+	IF(WIN32)
+		#COMPILE_OPTIONS "-Wall" # A lot of messages (in std libraries)
+		COMPILE_OPTIONS "/permissive-;/experimental:preprocessor"
+	ELSE()
+		COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
+	ENDIF()
 )
 target_link_libraries(tests
   ${Boost_LIBRARIES}
