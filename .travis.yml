@@ -6,13 +6,14 @@ addons:
     packages:
      - libboost-test-dev
      - libboost-filesystem-dev
+     - python3-pip
 #    - libboost-all-dev # it works
 
 # for tech commit
 script:
-- sudo apt install python3-pip
-- sudo pip install --upgrade pip
-- sudo pip install conan
+#- sudo pip3 install --upgrade pip
+- sudo pip3 install conan
+- sudo pip install
 - pwd
 - ls
 - mkdir build
