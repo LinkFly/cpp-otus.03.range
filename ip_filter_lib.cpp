@@ -23,6 +23,7 @@ using std::endl;
 using std::string;
 using namespace std::string_literals;
 //using namespace std::literals;
+//using namespace std::placeholders;
 
 //namespace rs = ranges::v3;
 namespace rv = ranges::v3::view;
@@ -46,9 +47,8 @@ bool any_checker(const Ip& ip_parts) {
 
 template<typename T>
 void PoolCollection<T>::add_from_line(ip_pool<T>& ip_pool, std::string& line) {
-
-	std::vector<std::string> v = rv::split(line, '\t');
-	std::vector<std::string> snums = rv::split(v.at(0), '.');
+	std::vector<std::string> v = split(line, '\t');
+	std::vector<std::string> snums = split(v.at(0), '.');
 	Ip ip_parts;
 	for (int i = 0; i < 4; i++) {
 		using ip_part_type = typename std::remove_reference<decltype(ip_parts[i])>::type;
@@ -110,7 +110,7 @@ struct IpMask {
 // Return struct for using into getBoundsByIpMask
 IpMask parseIpMask(std::string mask) {
 	IpMask res;
-	std::vector<std::string> ip_parts = rv::split(mask, '.');
+	std::vector<std::string> ip_parts = split(mask, '.');
 	auto idx = 0;
 	for (auto& ip_part : ip_parts) {
 		if (ip_part == "*") {
