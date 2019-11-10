@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(ip_filter VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
+project(range VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
 conan_basic_setup()
@@ -26,10 +26,10 @@ option(OPTIMIZE_MEMORY "Enable memory optimization" true)
 option(USE_VECTOR "Enable using vector for ip_pool" false)
 option(USE_LIST "Enable using list for ip_pool" false)
 configure_file(config.h.in config.h)
-add_executable(ip_filter ${SOURCES} ${HEADERS_LIB} ${DATA_FILES})
+add_executable(range ${SOURCES} ${HEADERS_LIB} ${DATA_FILES})
 add_library(ip_filter_lib STATIC ${SOURCES_LIB} ${HEADERS_LIB})
-target_link_libraries(ip_filter ip_filter_lib)
-set_target_properties(ip_filter ip_filter_lib PROPERTIES
+target_link_libraries(range ip_filter_lib)
+set_target_properties(range ip_filter_lib PROPERTIES
 	CXX_STANDARD 17
 	CXX_STANDARD_REQUIRED ON
 	IF(WIN32)
@@ -65,7 +65,7 @@ add_test(ip_filter_tests tests)
 ###
 
 ### Packaging ###
-install(TARGETS ip_filter RUNTIME DESTINATION bin)
+install(TARGETS range RUNTIME DESTINATION bin)
 install(TARGETS tests RUNTIME DESTINATION lib/ip_filter/tests/build/bin)
 install(FILES ip_filter.tsv ip_filter.tst DESTINATION lib/ip_filter/tests)
 
