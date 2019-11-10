@@ -21,6 +21,6 @@ cmake --build . --target tests
 
  - into os where it have installed:
 ```
-cd /usr/lib/ip_filter/tests
+cd /usr/lib/range/tests
 ./bin/tests
 ```
